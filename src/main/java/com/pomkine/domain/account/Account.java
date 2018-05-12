@@ -7,6 +7,9 @@ import static io.vavr.Predicates.instanceOf;
 import static io.vavr.collection.List.ofAll;
 
 import com.google.common.collect.Lists;
+import com.pomkine.domain.account.command.CreditAccount;
+import com.pomkine.domain.account.command.DebitAccount;
+import com.pomkine.domain.account.command.OpenAccount;
 import com.pomkine.domain.account.event.AccountCredited;
 import com.pomkine.domain.account.event.AccountDebitFailedDueToInsufficientFunds;
 import com.pomkine.domain.account.event.AccountDebited;
@@ -29,22 +32,26 @@ public class Account {
             .foldLeft(new Account(), (account, event) -> account.handle(event, false));
     }
 
-    public Account open(AggregateId id, Money initialBalance) {
+    public Account open(OpenAccount open) {
+        Money initialBalance = open.getInitialBalance();
         if (initialBalance.isNegative()) {
             throw new IllegalArgumentException(
                 "Can't open an account with negative initial balance");
         }
-        return handle(new AccountOpened(id, initialBalance), true);
+        return handle(new AccountOpened(open.getAccountId(), initialBalance), true);
     }
 
-    public Account credit(Money amount, AggregateId transferId) {
+    public Account credit(CreditAccount credit) {
+        Money amount = credit.getAmount();
         if (amount.isNegative()) {
             throw new IllegalArgumentException("Can't credit negative money amount");
         }
-        return handle(new AccountCredited(id, amount, transferId), true);
+        return handle(new AccountCredited(id, amount, credit.getTransferId()), true);
     }
 
-    public Account debit(Money amount, AggregateId transferId) {
+    public Account debit(DebitAccount debit) {
+        Money amount = debit.getAmount();
+        AggregateId transferId = debit.getTransferId();
         if (amount.isNegative()) {
             throw new IllegalArgumentException("Can't debit negative money amount");
         }

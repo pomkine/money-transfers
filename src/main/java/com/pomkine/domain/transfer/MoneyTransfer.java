@@ -7,6 +7,7 @@ import static io.vavr.Predicates.instanceOf;
 import static io.vavr.collection.List.ofAll;
 
 import com.google.common.collect.Lists;
+import com.pomkine.domain.transfer.command.CreateMoneyTransfer;
 import com.pomkine.domain.transfer.event.CreditRecorded;
 import com.pomkine.domain.transfer.event.DebitRecorded;
 import com.pomkine.domain.transfer.event.FailedDebitRecorded;
@@ -30,16 +31,17 @@ public class MoneyTransfer {
                 -> transfer.handle(event, false));
     }
 
-    public MoneyTransfer create(TransferDetails transferDetails) {
-        if (transferDetails.getAmount().isNegativeOrZero()) {
+    public MoneyTransfer create(CreateMoneyTransfer create) {
+        TransferDetails details = create.getDetails();
+        if (details.getAmount().isNegativeOrZero()) {
             throw new IllegalArgumentException(
                 "Can't create money amount with negative or zero transfer amount");
         }
-        if (sameAccount(transferDetails)) {
+        if (sameAccount(details)) {
             throw new IllegalArgumentException(
                 "Can't create money transfer using the same account for debit and credit");
         }
-        return handle(new MoneyTransferCreated(transferDetails), true);
+        return handle(new MoneyTransferCreated(details), true);
     }
 
     public MoneyTransfer recordDebit() {

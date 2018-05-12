@@ -1,6 +1,7 @@
 package com.pomkine.domain.transfer
 
 import com.pomkine.domain.common.AggregateId
+import com.pomkine.domain.transfer.command.CreateMoneyTransfer
 import com.pomkine.domain.transfer.event.CreditRecorded
 import com.pomkine.domain.transfer.event.DebitRecorded
 import com.pomkine.domain.transfer.event.FailedDebitRecorded
@@ -26,7 +27,7 @@ class MoneyTransferTest extends Specification {
         def transferDetails = detailsWithTransferAmount(ONE_HUNDRED_BUCKS)
 
         when:
-        transfer.create(transferDetails)
+        transfer.create(new CreateMoneyTransfer(transferDetails))
 
         then:
         def events = transfer.getPendingEvents()
@@ -44,7 +45,7 @@ class MoneyTransferTest extends Specification {
         def transferDetails = detailsWithTransferAmount(NEGATIVE_MONEY_AMOUNT)
 
         when:
-        transfer.create(transferDetails)
+        transfer.create(new CreateMoneyTransfer(transferDetails))
 
         then:
         thrown(IllegalArgumentException)
@@ -56,7 +57,7 @@ class MoneyTransferTest extends Specification {
         def transferDetails = detailsWithTransferAmount(ZERO_MONEY_AMOUNT)
 
         when:
-        transfer.create(transferDetails)
+        transfer.create(new CreateMoneyTransfer(transferDetails))
 
         then:
         thrown(IllegalArgumentException)
@@ -73,7 +74,7 @@ class MoneyTransferTest extends Specification {
                 .build()
 
         when:
-        transfer.create(transferDetails)
+        transfer.create(new CreateMoneyTransfer(transferDetails))
 
         then:
         thrown(IllegalArgumentException)

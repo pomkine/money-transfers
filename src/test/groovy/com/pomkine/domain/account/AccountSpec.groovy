@@ -1,5 +1,8 @@
 package com.pomkine.domain.account
 
+import com.pomkine.domain.account.command.CreditAccount
+import com.pomkine.domain.account.command.DebitAccount
+import com.pomkine.domain.account.command.OpenAccount
 import com.pomkine.domain.account.event.AccountCredited
 import com.pomkine.domain.account.event.AccountDebitFailedDueToInsufficientFunds
 import com.pomkine.domain.account.event.AccountDebited
@@ -23,7 +26,7 @@ class AccountSpec extends Specification {
         def account = new Account()
 
         when:
-        account.open(accountId, TWO_HUNDRED_BUCKS)
+        account.open(new OpenAccount(accountId, TWO_HUNDRED_BUCKS))
 
         then:
         def events = account.getPendingEvents()
@@ -42,7 +45,7 @@ class AccountSpec extends Specification {
         def account = new Account()
 
         when:
-        account.open(accountId, NEGATIVE_MONEY_AMOUNT)
+        account.open(new OpenAccount(accountId, NEGATIVE_MONEY_AMOUNT))
 
         then:
         thrown(IllegalArgumentException)
@@ -53,7 +56,7 @@ class AccountSpec extends Specification {
         def account = opened(accountId, TWO_HUNDRED_BUCKS)
 
         when:
-        account.credit(TWO_HUNDRED_BUCKS, transferId)
+        account.credit(new CreditAccount(TWO_HUNDRED_BUCKS, transferId))
 
         then:
         def events = account.getPendingEvents()
@@ -74,7 +77,7 @@ class AccountSpec extends Specification {
         def account = opened(accountId, TWO_HUNDRED_BUCKS)
 
         when:
-        account.credit(NEGATIVE_MONEY_AMOUNT, transferId)
+        account.credit(new CreditAccount(NEGATIVE_MONEY_AMOUNT, transferId))
 
         then:
         thrown(IllegalArgumentException)
@@ -85,7 +88,7 @@ class AccountSpec extends Specification {
         def account = opened(accountId, TWO_HUNDRED_BUCKS)
 
         when:
-        account.debit(ONE_HUNDRED_BUCKS, transferId)
+        account.debit(new DebitAccount(ONE_HUNDRED_BUCKS, transferId))
 
         then:
         def events = account.getPendingEvents()
@@ -106,7 +109,7 @@ class AccountSpec extends Specification {
         def account = opened(accountId, TWO_HUNDRED_BUCKS)
 
         when:
-        account.debit(NEGATIVE_MONEY_AMOUNT, transferId)
+        account.debit(new DebitAccount(NEGATIVE_MONEY_AMOUNT, transferId))
 
         then:
         thrown(IllegalArgumentException)
@@ -117,7 +120,7 @@ class AccountSpec extends Specification {
         def account = opened(accountId, ONE_HUNDRED_BUCKS)
 
         when:
-        account.debit(TWO_HUNDRED_BUCKS, transferId)
+        account.debit(new DebitAccount(TWO_HUNDRED_BUCKS, transferId))
 
         then:
         def events = account.getPendingEvents()
