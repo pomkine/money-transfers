@@ -37,41 +37,41 @@ public class Account {
         return handle(new AccountOpened(id, initialBalance), true);
     }
 
-    public Account credit(Money creditAmount, AggregateId transferId) {
-        if (creditAmount.isNegative()) {
+    public Account credit(Money amount, AggregateId transferId) {
+        if (amount.isNegative()) {
             throw new IllegalArgumentException("Can't credit negative money amount");
         }
-        return handle(new AccountCredited(id, creditAmount, transferId), true);
+        return handle(new AccountCredited(id, amount, transferId), true);
     }
 
-    public Account debit(Money debitAmount, AggregateId transferId) {
-        if (debitAmount.isNegative()) {
+    public Account debit(Money amount, AggregateId transferId) {
+        if (amount.isNegative()) {
             throw new IllegalArgumentException("Can't debit negative money amount");
         }
-        if (balance.isLessThan(debitAmount)) {
+        if (balance.isLessThan(amount)) {
             return handle(
-                new AccountDebitFailedDueToInsufficientFunds(id, debitAmount, transferId), true);
+                new AccountDebitFailedDueToInsufficientFunds(id, amount, transferId), true);
         }
-        return handle(new AccountDebited(id, debitAmount, transferId), true);
+        return handle(new AccountDebited(id, amount, transferId), true);
     }
 
-    private Account accountDebitFailed(AccountDebitFailedDueToInsufficientFunds debitFailed) {
+    private Account debitFailed(AccountDebitFailedDueToInsufficientFunds debitFailed) {
         return this;
     }
 
-    private Account accountDebited(AccountDebited accountDebited) {
-        this.balance.minus(accountDebited.getDebitAmount());
+    private Account debited(AccountDebited debited) {
+        this.balance.minus(debited.getAmount());
         return this;
     }
 
-    private Account accountCredited(AccountCredited accountCredited) {
-        balance = balance.plus(accountCredited.getCreditAmount());
+    private Account credited(AccountCredited credited) {
+        balance = balance.plus(credited.getAmount());
         return this;
     }
 
-    private Account accountOpened(AccountOpened accountOpened) {
-        balance = accountOpened.getInitialBalance();
-        id = accountOpened.getAccountId();
+    private Account opened(AccountOpened opened) {
+        balance = opened.getInitialBalance();
+        id = opened.getAccountId();
         return this;
     }
 
@@ -83,16 +83,16 @@ public class Account {
         pendingEvents.clear();
     }
 
-    private Account handle(AccountEvent accountEvent, boolean isNew) {
+    private Account handle(AccountEvent event, boolean isNew) {
         if (isNew) {
-            pendingEvents.add(accountEvent);
+            pendingEvents.add(event);
         }
-        return Match(accountEvent).of(
-            Case($(instanceOf(AccountOpened.class)), this::accountOpened),
-            Case($(instanceOf(AccountCredited.class)), this::accountCredited),
-            Case($(instanceOf(AccountDebited.class)), this::accountDebited),
+        return Match(event).of(
+            Case($(instanceOf(AccountOpened.class)), this::opened),
+            Case($(instanceOf(AccountCredited.class)), this::credited),
+            Case($(instanceOf(AccountDebited.class)), this::debited),
             Case($(instanceOf(AccountDebitFailedDueToInsufficientFunds.class)),
-                this::accountDebitFailed)
+                this::debitFailed)
         );
     }
 }

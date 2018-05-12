@@ -35,7 +35,7 @@ class MoneyTransferTest extends Specification {
         def event = events.head()
         event.class == MoneyTransferCreated
         and:
-        event.transferDetails == transferDetails
+        event.details == transferDetails
     }
 
     def "can't create money transfer with negative transfer amount"() {
@@ -69,7 +69,7 @@ class MoneyTransferTest extends Specification {
                 .toAccountId(toAccountId)
                 .fromAccountId(toAccountId)
                 .transferId(transferId)
-                .transferAmount(ONE_HUNDRED_BUCKS)
+                .amount(ONE_HUNDRED_BUCKS)
                 .build()
 
         when:
@@ -135,7 +135,7 @@ class MoneyTransferTest extends Specification {
                 .toAccountId(toAccountId)
                 .fromAccountId(fromAccountId)
                 .transferId(transferId)
-                .transferAmount(transferAmount)
+                .amount(transferAmount)
                 .build()
     }
 

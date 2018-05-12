@@ -64,7 +64,7 @@ class AccountSpec extends Specification {
         and:
         event.accountId == accountId
         and:
-        event.creditAmount == TWO_HUNDRED_BUCKS
+        event.amount == TWO_HUNDRED_BUCKS
         and:
         event.transferId == transferId
     }
@@ -96,7 +96,7 @@ class AccountSpec extends Specification {
         and:
         event.accountId == accountId
         and:
-        event.debitAmount == ONE_HUNDRED_BUCKS
+        event.amount == ONE_HUNDRED_BUCKS
         and:
         event.transferId == transferId
     }
@@ -128,7 +128,7 @@ class AccountSpec extends Specification {
         and:
         event.accountId == accountId
         and:
-        event.debitAmount == TWO_HUNDRED_BUCKS
+        event.amount == TWO_HUNDRED_BUCKS
         and:
         event.transferId == transferId
     }

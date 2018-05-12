@@ -19,7 +19,7 @@ import lombok.ToString;
 @ToString
 public class MoneyTransfer {
 
-    private TransferDetails transferDetails;
+    private TransferDetails details;
     private MoneyTransferState state;
 
     private List<MoneyTransferEvent> pendingEvents = Lists.newArrayList();
@@ -31,7 +31,7 @@ public class MoneyTransfer {
     }
 
     public MoneyTransfer create(TransferDetails transferDetails) {
-        if (transferDetails.getTransferAmount().isNegativeOrZero()) {
+        if (transferDetails.getAmount().isNegativeOrZero()) {
             throw new IllegalArgumentException(
                 "Can't create money amount with negative or zero transfer amount");
         }
@@ -43,23 +43,23 @@ public class MoneyTransfer {
     }
 
     public MoneyTransfer recordDebit() {
-        return handle(new DebitRecorded(transferDetails), true);
+        return handle(new DebitRecorded(details), true);
     }
 
     public MoneyTransfer recordCredit() {
-        return handle(new CreditRecorded(transferDetails), true);
+        return handle(new CreditRecorded(details), true);
     }
 
     public MoneyTransfer recordFailedCredit() {
-        return handle(new FailedDebitRecorded(transferDetails), true);
+        return handle(new FailedDebitRecorded(details), true);
     }
 
     private boolean sameAccount(TransferDetails transferDetails) {
         return transferDetails.getFromAccountId().equals(transferDetails.getToAccountId());
     }
 
-    private MoneyTransfer transferCreated(MoneyTransferCreated transferCreated) {
-        transferDetails = transferCreated.getTransferDetails();
+    private MoneyTransfer created(MoneyTransferCreated transferCreated) {
+        details = transferCreated.getDetails();
         state = MoneyTransferState.INITIAL;
         return this;
     }
@@ -83,12 +83,12 @@ public class MoneyTransfer {
         return pendingEvents;
     }
 
-    public MoneyTransfer handle(MoneyTransferEvent transferEvent, boolean isNew) {
+    public MoneyTransfer handle(MoneyTransferEvent event, boolean isNew) {
         if (isNew) {
-            this.pendingEvents.add(transferEvent);
+            this.pendingEvents.add(event);
         }
-        return Match(transferEvent).of(
-            Case($(instanceOf(MoneyTransferCreated.class)), this::transferCreated),
+        return Match(event).of(
+            Case($(instanceOf(MoneyTransferCreated.class)), this::created),
             Case($(instanceOf(DebitRecorded.class)), this::debitRecorded),
             Case($(instanceOf(FailedDebitRecorded.class)), this::failedDebitRecorded),
             Case($(instanceOf(CreditRecorded.class)), this::creditRecorded)

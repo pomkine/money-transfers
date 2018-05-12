@@ -8,8 +8,8 @@ import org.joda.money.Money;
 
 public class AccountFixture {
 
-    public static Account opened(AggregateId accountId, Money initialBalance) {
-        return Account.from(newArrayList(new AccountOpened(accountId, initialBalance)));
+    public static Account opened(AggregateId id, Money initialBalance) {
+        return Account.from(newArrayList(new AccountOpened(id, initialBalance)));
     }
 
 }

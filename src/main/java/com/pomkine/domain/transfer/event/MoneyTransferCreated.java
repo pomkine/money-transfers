@@ -11,7 +11,7 @@ import lombok.ToString;
 @ToString(callSuper = true)
 public class MoneyTransferCreated extends MoneyTransferEvent {
 
-    public MoneyTransferCreated(TransferDetails transferDetails) {
-        super(transferDetails);
+    public MoneyTransferCreated(TransferDetails details) {
+        super(details);
     }
 }

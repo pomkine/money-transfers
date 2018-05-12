@@ -9,8 +9,8 @@ import org.joda.money.Money;
 @Builder(builderClassName = "builder")
 public class TransferDetails {
 
+    private final AggregateId transferId;
     private final AggregateId fromAccountId;
     private final AggregateId toAccountId;
-    private final AggregateId transferId;
-    private final Money transferAmount;
+    private final Money amount;
 }

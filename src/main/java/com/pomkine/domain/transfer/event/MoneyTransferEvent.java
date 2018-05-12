@@ -12,14 +12,14 @@ import lombok.ToString;
 @ToString
 public abstract class MoneyTransferEvent extends DomainEvent {
 
-    private final TransferDetails transferDetails;
+    private final TransferDetails details;
 
-    public MoneyTransferEvent(TransferDetails transferDetails) {
+    public MoneyTransferEvent(TransferDetails details) {
         super();
-        this.transferDetails = transferDetails;
+        this.details = details;
     }
 
     public AggregateId getTransferId() {
-        return transferDetails.getTransferId();
+        return details.getTransferId();
     }
 }
