@@ -1,5 +1,6 @@
 package com.pomkine.domain.transfer.event;
 
+import com.pomkine.domain.common.AggregateId;
 import com.pomkine.domain.common.DomainEvent;
 import com.pomkine.domain.transfer.TransferDetails;
 import lombok.EqualsAndHashCode;
@@ -16,5 +17,9 @@ public abstract class MoneyTransferEvent extends DomainEvent {
     public MoneyTransferEvent(TransferDetails transferDetails) {
         super();
         this.transferDetails = transferDetails;
+    }
+
+    public AggregateId getTransferId() {
+        return transferDetails.getTransferId();
     }
 }

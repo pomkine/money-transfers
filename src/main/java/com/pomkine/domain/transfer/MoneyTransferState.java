@@ -1,6 +1,5 @@
 package com.pomkine.domain.transfer;
 
 public enum MoneyTransferState {
-    INITIAL
-
+    INITIAL, DEBITED, COMPLETED, FAILED
 }

@@ -37,22 +37,22 @@ public class Account {
         return handle(new AccountOpened(id, initialBalance), true);
     }
 
-    public Account credit(Money creditAmount) {
+    public Account credit(Money creditAmount, AggregateId transferId) {
         if (creditAmount.isNegative()) {
             throw new IllegalArgumentException("Can't credit negative money amount");
         }
-        return handle(new AccountCredited(id, creditAmount), true);
+        return handle(new AccountCredited(id, creditAmount, transferId), true);
     }
 
-    public Account debit(Money debitAmount) {
+    public Account debit(Money debitAmount, AggregateId transferId) {
         if (debitAmount.isNegative()) {
             throw new IllegalArgumentException("Can't debit negative money amount");
         }
         if (balance.isLessThan(debitAmount)) {
             return handle(
-                new AccountDebitFailedDueToInsufficientFunds(id, debitAmount), true);
+                new AccountDebitFailedDueToInsufficientFunds(id, debitAmount, transferId), true);
         }
-        return handle(new AccountDebited(id, debitAmount), true);
+        return handle(new AccountDebited(id, debitAmount, transferId), true);
     }
 
     private Account accountDebitFailed(AccountDebitFailedDueToInsufficientFunds debitFailed) {

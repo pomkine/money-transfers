@@ -13,6 +13,7 @@ import static com.pomkine.domain.account.AccountFixture.opened
 class AccountSpec extends Specification {
 
     def accountId = AggregateId.generate()
+    def transferId = AggregateId.generate()
     def TWO_HUNDRED_BUCKS = Money.parse("USD 200")
     def ONE_HUNDRED_BUCKS = Money.parse("USD 100")
     def NEGATIVE_MONEY_AMOUNT = Money.parse("USD -200")
@@ -52,7 +53,7 @@ class AccountSpec extends Specification {
         def account = opened(accountId, TWO_HUNDRED_BUCKS)
 
         when:
-        account.credit(TWO_HUNDRED_BUCKS)
+        account.credit(TWO_HUNDRED_BUCKS, transferId)
 
         then:
         def events = account.getPendingEvents()
@@ -64,6 +65,8 @@ class AccountSpec extends Specification {
         event.accountId == accountId
         and:
         event.creditAmount == TWO_HUNDRED_BUCKS
+        and:
+        event.transferId == transferId
     }
 
     def "can't credit negative money amount"() {
@@ -71,7 +74,7 @@ class AccountSpec extends Specification {
         def account = opened(accountId, TWO_HUNDRED_BUCKS)
 
         when:
-        account.credit(NEGATIVE_MONEY_AMOUNT)
+        account.credit(NEGATIVE_MONEY_AMOUNT, transferId)
 
         then:
         thrown(IllegalArgumentException)
@@ -82,7 +85,7 @@ class AccountSpec extends Specification {
         def account = opened(accountId, TWO_HUNDRED_BUCKS)
 
         when:
-        account.debit(ONE_HUNDRED_BUCKS)
+        account.debit(ONE_HUNDRED_BUCKS, transferId)
 
         then:
         def events = account.getPendingEvents()
@@ -94,6 +97,8 @@ class AccountSpec extends Specification {
         event.accountId == accountId
         and:
         event.debitAmount == ONE_HUNDRED_BUCKS
+        and:
+        event.transferId == transferId
     }
 
     def "can't debit negative money amount"() {
@@ -101,18 +106,18 @@ class AccountSpec extends Specification {
         def account = opened(accountId, TWO_HUNDRED_BUCKS)
 
         when:
-        account.debit(NEGATIVE_MONEY_AMOUNT)
+        account.debit(NEGATIVE_MONEY_AMOUNT, transferId)
 
         then:
         thrown(IllegalArgumentException)
     }
 
-    def "can't debit account if not enough money on balance"() {
+    def "account debit failed if not enough money on balance"() {
         setup:
         def account = opened(accountId, ONE_HUNDRED_BUCKS)
 
         when:
-        account.debit(TWO_HUNDRED_BUCKS)
+        account.debit(TWO_HUNDRED_BUCKS, transferId)
 
         then:
         def events = account.getPendingEvents()
@@ -124,6 +129,8 @@ class AccountSpec extends Specification {
         event.accountId == accountId
         and:
         event.debitAmount == TWO_HUNDRED_BUCKS
+        and:
+        event.transferId == transferId
     }
 
 

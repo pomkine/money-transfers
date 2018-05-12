@@ -12,9 +12,11 @@ import org.joda.money.Money;
 public class AccountDebited extends AccountEvent {
 
     private final Money debitAmount;
+    private final AggregateId transferId;
 
-    public AccountDebited(AggregateId accountId, Money debitAmount) {
+    public AccountDebited(AggregateId accountId, Money debitAmount, AggregateId transferId) {
         super(accountId);
         this.debitAmount = debitAmount;
+        this.transferId = transferId;
     }
 }

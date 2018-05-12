@@ -1,9 +1,14 @@
 package com.pomkine.domain.transfer
 
 import com.pomkine.domain.common.AggregateId
+import com.pomkine.domain.transfer.event.CreditRecorded
+import com.pomkine.domain.transfer.event.DebitRecorded
+import com.pomkine.domain.transfer.event.FailedDebitRecorded
 import com.pomkine.domain.transfer.event.MoneyTransferCreated
 import org.joda.money.Money
 import spock.lang.Specification
+
+import static com.pomkine.domain.transfer.MoneyTransferFixture.created
 
 
 class MoneyTransferTest extends Specification {
@@ -72,6 +77,57 @@ class MoneyTransferTest extends Specification {
 
         then:
         thrown(IllegalArgumentException)
+    }
+
+    def "money transfer records debit fact"() {
+        setup:
+        def transfer = created(detailsWithTransferAmount(ONE_HUNDRED_BUCKS))
+
+        when:
+        transfer.recordDebit()
+
+        then:
+        def events = transfer.getPendingEvents()
+        events.size() == 1
+        and:
+        def event = events.head()
+        event.class == DebitRecorded
+        and:
+        event.transferId == transferId
+    }
+
+    def "money transfer records credit fact"() {
+        setup:
+        def transfer = created(detailsWithTransferAmount(ONE_HUNDRED_BUCKS))
+
+        when:
+        transfer.recordCredit()
+
+        then:
+        def events = transfer.getPendingEvents()
+        events.size() == 1
+        and:
+        def event = events.head()
+        event.class == CreditRecorded
+        and:
+        event.transferId == transferId
+    }
+
+    def "money transfer records failed debit fact"() {
+        setup:
+        def transfer = created(detailsWithTransferAmount(ONE_HUNDRED_BUCKS))
+
+        when:
+        transfer.recordFailedCredit()
+
+        then:
+        def events = transfer.getPendingEvents()
+        events.size() == 1
+        and:
+        def event = events.head()
+        event.class == FailedDebitRecorded
+        and:
+        event.transferId == transferId
     }
 
     private detailsWithTransferAmount(Money transferAmount) {

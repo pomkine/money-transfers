@@ -12,10 +12,12 @@ import org.joda.money.Money;
 public class AccountDebitFailedDueToInsufficientFunds extends AccountEvent {
 
     private final Money debitAmount;
+    private final AggregateId transferId;
 
-
-    public AccountDebitFailedDueToInsufficientFunds(AggregateId accountId, Money debitAmount) {
+    public AccountDebitFailedDueToInsufficientFunds(AggregateId accountId, Money debitAmount,
+                                                    AggregateId transferId) {
         super(accountId);
         this.debitAmount = debitAmount;
+        this.transferId = transferId;
     }
 }
