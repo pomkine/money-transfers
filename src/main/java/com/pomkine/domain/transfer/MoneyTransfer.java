@@ -7,22 +7,27 @@ import static io.vavr.Predicates.instanceOf;
 import static io.vavr.collection.List.ofAll;
 
 import com.google.common.collect.Lists;
+import com.pomkine.domain.common.AggregateId;
 import com.pomkine.domain.transfer.command.CreateMoneyTransfer;
+import com.pomkine.domain.transfer.command.RecordNotFoundAccount;
+import com.pomkine.domain.transfer.event.AccountNotFound;
 import com.pomkine.domain.transfer.event.CreditRecorded;
 import com.pomkine.domain.transfer.event.DebitRecorded;
 import com.pomkine.domain.transfer.event.FailedDebitRecorded;
 import com.pomkine.domain.transfer.event.MoneyTransferCreated;
 import com.pomkine.domain.transfer.event.MoneyTransferEvent;
 import java.util.List;
+import lombok.Getter;
 import lombok.ToString;
 
 
 @ToString
 public class MoneyTransfer {
 
+    @Getter
+    private AggregateId id;
     private TransferDetails details;
     private MoneyTransferState state;
-
     private List<MoneyTransferEvent> pendingEvents = Lists.newArrayList();
 
     public static MoneyTransfer from(List<MoneyTransferEvent> history) {
@@ -41,19 +46,24 @@ public class MoneyTransfer {
             throw new IllegalArgumentException(
                 "Can't create money transfer using the same account for debit and credit");
         }
-        return handle(new MoneyTransferCreated(details), true);
+        return handle(new MoneyTransferCreated(create.getTransferId(), details), true);
+    }
+
+    public MoneyTransfer recordNotFoundAccount(RecordNotFoundAccount notFoundAccount) {
+        return handle(
+            new AccountNotFound(id, details, notFoundAccount.getNotFoundAccountId()), true);
     }
 
     public MoneyTransfer recordDebit() {
-        return handle(new DebitRecorded(details), true);
+        return handle(new DebitRecorded(id, details), true);
     }
 
     public MoneyTransfer recordCredit() {
-        return handle(new CreditRecorded(details), true);
+        return handle(new CreditRecorded(id, details), true);
     }
 
-    public MoneyTransfer recordFailedCredit() {
-        return handle(new FailedDebitRecorded(details), true);
+    public MoneyTransfer recordFailedDebit() {
+        return handle(new FailedDebitRecorded(id, details), true);
     }
 
     private boolean sameAccount(TransferDetails transferDetails) {
@@ -61,6 +71,7 @@ public class MoneyTransfer {
     }
 
     private MoneyTransfer created(MoneyTransferCreated transferCreated) {
+        id = transferCreated.getTransferId();
         details = transferCreated.getDetails();
         state = MoneyTransferState.INITIAL;
         return this;
@@ -81,8 +92,17 @@ public class MoneyTransfer {
         return this;
     }
 
+    private MoneyTransfer accountNotFound(AccountNotFound accountNotFound) {
+        state = MoneyTransferState.FAILED;
+        return this;
+    }
+
     public List<MoneyTransferEvent> getPendingEvents() {
         return pendingEvents;
+    }
+
+    public void markEventsAsCommitted() {
+        pendingEvents.clear();
     }
 
     public MoneyTransfer handle(MoneyTransferEvent event, boolean isNew) {
@@ -93,6 +113,7 @@ public class MoneyTransfer {
             Case($(instanceOf(MoneyTransferCreated.class)), this::created),
             Case($(instanceOf(DebitRecorded.class)), this::debitRecorded),
             Case($(instanceOf(FailedDebitRecorded.class)), this::failedDebitRecorded),
+            Case($(instanceOf(AccountNotFound.class)), this::accountNotFound),
             Case($(instanceOf(CreditRecorded.class)), this::creditRecorded)
         );
 

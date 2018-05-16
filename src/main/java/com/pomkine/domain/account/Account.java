@@ -17,12 +17,15 @@ import com.pomkine.domain.account.event.AccountEvent;
 import com.pomkine.domain.account.event.AccountOpened;
 import com.pomkine.domain.common.AggregateId;
 import java.util.List;
+import lombok.Getter;
 import lombok.ToString;
+import org.joda.money.CurrencyUnit;
 import org.joda.money.Money;
 
 @ToString
 public class Account {
 
+    @Getter
     private AggregateId id;
     private Money balance;
     private List<AccountEvent> pendingEvents = Lists.newArrayList();
@@ -34,6 +37,7 @@ public class Account {
 
     public Account open(OpenAccount open) {
         Money initialBalance = open.getInitialBalance();
+        checkCurrencySupported(initialBalance);
         if (initialBalance.isNegative()) {
             throw new IllegalArgumentException(
                 "Can't open an account with negative initial balance");
@@ -60,6 +64,15 @@ public class Account {
                 new AccountDebitFailedDueToInsufficientFunds(id, amount, transferId), true);
         }
         return handle(new AccountDebited(id, amount, transferId), true);
+    }
+
+    private void checkCurrencySupported(Money initialBalance) {
+        CurrencyUnit currencyUnit = initialBalance.getCurrencyUnit();
+        if (!currencyUnit.equals(CurrencyUnit.USD)) {
+            String errorMsg = String.format(
+                "Only USD currency accounts can be opened. Requested currency: %s", currencyUnit);
+            throw new IllegalArgumentException(errorMsg);
+        }
     }
 
     private Account debitFailed(AccountDebitFailedDueToInsufficientFunds debitFailed) {

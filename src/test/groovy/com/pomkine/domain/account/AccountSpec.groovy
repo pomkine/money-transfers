@@ -19,6 +19,7 @@ class AccountSpec extends Specification {
     def transferId = AggregateId.generate()
     def TWO_HUNDRED_BUCKS = Money.parse("USD 200")
     def ONE_HUNDRED_BUCKS = Money.parse("USD 100")
+    def ONE_HUNDRED_EURO = Money.parse("EUR 100")
     def NEGATIVE_MONEY_AMOUNT = Money.parse("USD -200")
 
     def "account is opened with initial balance and account id"() {
@@ -134,6 +135,17 @@ class AccountSpec extends Specification {
         event.amount == TWO_HUNDRED_BUCKS
         and:
         event.transferId == transferId
+    }
+
+    def "only USD account can be opened"() {
+        setup:
+        def account = new Account()
+
+        when:
+        account.open(new OpenAccount(accountId, ONE_HUNDRED_EURO))
+
+        then:
+        thrown(IllegalArgumentException)
     }
 
 

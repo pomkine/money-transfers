@@ -1,0 +1,5 @@
+# Logging settings.
+logging:
+  level: INFO
+  loggers:
+    com.pomkine.eventstore.log: DEBUG
