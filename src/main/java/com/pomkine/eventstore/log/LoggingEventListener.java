@@ -19,7 +19,7 @@ public class LoggingEventListener {
 
     @Subscribe
     public void logDomainEvent(DomainEvent domainEvent) {
-        log.info("{}", domainEvent);
+        log.trace("{}", domainEvent);
     }
 
     @Subscribe

@@ -9,7 +9,7 @@ public class AccountInfoResponse {
 
     @JsonProperty("account_id")
     private String accountId;
-    @JsonProperty()
+    @JsonProperty
     private Money balance;
 
 

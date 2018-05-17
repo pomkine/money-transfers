@@ -2,4 +2,6 @@
 logging:
   level: INFO
   loggers:
-    com.pomkine.eventstore.log: DEBUG
+    "com.pomkine.eventstore.log": TRACE
+  appenders:
+      - type: console
