@@ -25,8 +25,8 @@ The main aim of this project is to get a hands-on experience with *Event Sourcin
 
 ## Tests
 
-- [Domain model tests](../blob/master/src/test/groovy/com/pomkine/domain)
-- [Acceptance tests](../blob/master/src/test/groovy/com/pomkine/MoneyTransferAcceptanceSpec.groovy)
+- [Domain model tests](../master/src/test/groovy/com/pomkine/domain)
+- [Acceptance tests](../master/src/test/groovy/com/pomkine/MoneyTransferAcceptanceSpec.groovy)
 
 ## Built with
 - [Dropwizard](https://www.dropwizard.io)
