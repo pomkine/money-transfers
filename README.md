@@ -11,16 +11,26 @@ The main aim of this project is to get a hands-on experience with *Event Sourcin
 ## API Reference
 
 - *Open account* - **POST** `/account`
-   *Payload*: ```{
-                   "initial_balance": 1129.5
+   - *Payload*: ```{   
+                   "initial_balance": {amount}   
+                  }   
+   				```
+   - *Example*:```{
+                   "initial_balance": 125.6
                  }
    				```
+   
 - *Get Account information* - **GET** `/account/{account_id}`
 - *Transfer money* - **POST** `/transfer`
-   *Payload*: ```{
+   - *Payload*: ```{
+                 	"from_account":"{from_account_id}",
+                 	"to_account":"{to_account_id}",
+                 	"amount":{amount}
+                 }```
+   - *Example*: ```{
                  	"from_account":"32287c81-e925-466e-9753-1de9e2184a57",
                  	"to_account":"6a61adb1-d566-4f10-804f-95ed6e8fa152",
-                 	"amount":3
+                 	"amount":6.55
                  }```
 
 ## Tests
