@@ -39,3 +39,4 @@ The main aim of this project is to get a hands-on experience with *Event Sourcin
 ## TO DO
 1. Event stream optimistic locking
 2. Gradle config to run unit and acceptance tests separately
+3. Transfers read model
