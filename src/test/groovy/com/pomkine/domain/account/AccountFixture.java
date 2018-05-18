@@ -7,6 +7,7 @@ import com.pomkine.domain.account.event.AccountDebited;
 import com.pomkine.domain.account.event.AccountEvent;
 import com.pomkine.domain.account.event.AccountOpened;
 import com.pomkine.domain.common.AggregateId;
+import com.pomkine.domain.common.Version;
 import java.util.List;
 import org.joda.money.Money;
 
@@ -15,7 +16,7 @@ public class AccountFixture {
     public static Account opened(AggregateId id, Money initialBalance) {
         List<AccountEvent> events = Lists.newArrayList();
         events.add(new AccountOpened(id, initialBalance));
-        return Account.from(events);
+        return Account.from(events, Version.of(1));
     }
 
     public static AccountOpened openedEvent(AggregateId id, Money initialBalance) {

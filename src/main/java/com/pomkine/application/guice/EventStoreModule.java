@@ -1,6 +1,7 @@
 package com.pomkine.application.guice;
 
 import com.google.common.collect.Lists;
+import com.google.common.eventbus.AsyncEventBus;
 import com.google.common.eventbus.EventBus;
 import com.google.inject.AbstractModule;
 import com.google.inject.TypeLiteral;
@@ -16,11 +17,13 @@ import com.pomkine.eventstore.EventStream;
 import com.pomkine.eventstore.InMemoryEventStore;
 import com.pomkine.eventstore.log.LoggingEventListener;
 import java.util.List;
+import java.util.concurrent.Executors;
 
 public class EventStoreModule extends AbstractModule {
 
-    //    private EventBus eventBus = new AsyncEventBus(Executors.newFixedThreadPool(10));
-    private EventBus eventBus = new EventBus("domain-events");
+    private EventBus eventBus =
+        new AsyncEventBus("domain-events", Executors.newFixedThreadPool(10));
+//    private EventBus eventBus = new EventBus("domain-events");
 
     @Override
     // @formatter:off

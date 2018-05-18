@@ -6,7 +6,7 @@ The main aim of this project is to get a hands-on experience with *Event Sourcin
 
 1. Clone with `git clone https://github.com/pomkine/money-transfers`
 2. Build a *jar* with `./gradlew shadowJar`
-3. Run the *jar* with `java -jar build/libs/money-transfers.jar server`
+3. Run the *jar* with `java -jar build/libs/money-transfers.jar server config.yml`
 
 ## API Reference
 
@@ -71,6 +71,5 @@ The main aim of this project is to get a hands-on experience with *Event Sourcin
 - [Gradle](https://gradle.org/)
 
 ## TO DO
-1. Event stream optimistic locking
-2. Gradle config to run unit and acceptance tests separately
-3. Transfers read model
+1. Gradle config to run unit and acceptance tests separately
+2. Transfers read model

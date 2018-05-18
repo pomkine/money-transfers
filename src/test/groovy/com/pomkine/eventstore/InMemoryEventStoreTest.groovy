@@ -8,6 +8,8 @@ import com.pomkine.domain.account.event.AccountDebited
 import com.pomkine.domain.account.event.AccountEvent
 import com.pomkine.domain.account.event.AccountOpened
 import com.pomkine.domain.common.AggregateId
+import com.pomkine.domain.common.Version
+import com.pomkine.eventstore.error.VersionConflict
 import org.joda.money.Money
 import spock.lang.Specification
 
@@ -22,16 +24,16 @@ class InMemoryEventStoreTest extends Specification {
         List<AccountEvent> events = generateEvents()
 
         when:
-        eventStore.save(Account, accountId, events)
+        eventStore.save(Account, accountId, events, Version.NONE)
 
         then:
-        def loadedEvents = eventStore.loadEvents(Account, accountId)
-        loadedEvents == events
+        def loadedEventStream = eventStore.loadEventStream(Account, accountId)
+        loadedEventStream.events == events
     }
 
     def "event store should return no events if no events to load"() {
         when:
-        def loadedEvents = eventStore.loadEvents(Account, accountId)
+        def loadedEvents = eventStore.loadEventStream(Account, accountId)
 
         then:
         loadedEvents.isEmpty()
@@ -40,14 +42,14 @@ class InMemoryEventStoreTest extends Specification {
     def "event store should append new events to old ones"() {
         setup:
         List<AccountEvent> oldEvents = generateEvents()
-        eventStore.save(Account, accountId, oldEvents)
+        eventStore.save(Account, accountId, oldEvents, Version.NONE)
 
         when:
         List<AccountEvent> newEvents = generateEvents()
-        eventStore.save(Account, accountId, newEvents)
+        eventStore.save(Account, accountId, newEvents, Version.of(1))
 
         then:
-        def loadedEvents = eventStore.loadEvents(Account, accountId)
+        def loadedEvents = eventStore.loadEventStream(Account, accountId).events
         loadedEvents.size() == oldEvents.size() + newEvents.size()
         loadedEvents.containsAll(oldEvents)
         loadedEvents.containsAll(newEvents)
@@ -56,13 +58,40 @@ class InMemoryEventStoreTest extends Specification {
     def "event store should load events ordered by time"() {
         setup:
         List<AccountEvent> events = generateEvents()
-        eventStore.save(Account, accountId, events)
+        eventStore.save(Account, accountId, events, Version.NONE)
 
         when:
-        def loaded = eventStore.loadEvents(Account, accountId)
+        def loaded = eventStore.loadEventStream(Account, accountId)
 
         then:
-        loaded == events.sort(false, new OrderBy<AccountEvent>({ it.getWhen() }))
+        loaded.events == events.sort(false, new OrderBy<AccountEvent>({ it.getWhen() }))
+    }
+
+    def "event store should increase event stream version after each save"() {
+        setup:
+        List<AccountEvent> oldEvents = generateEvents()
+        eventStore.save(Account, accountId, oldEvents, Version.NONE)
+
+        when:
+        List<AccountEvent> newEvents = generateEvents()
+        eventStore.save(Account, accountId, newEvents, Version.of(1))
+
+        then:
+        def eventStream = eventStore.loadEventStream(Account, accountId)
+        eventStream.version == Version.of(2)
+    }
+
+    def "event store should throw error on save if aggregate and event stream versions not equal"() {
+        setup:
+        List<AccountEvent> oldEvents = generateEvents()
+        eventStore.save(Account, accountId, oldEvents, Version.NONE)
+
+        when:
+        List<AccountEvent> newEvents = generateEvents()
+        eventStore.save(Account, accountId, newEvents, Version.of(3))
+
+        then:
+        thrown(VersionConflict)
     }
 
     private List<AccountEvent> generateEvents() {

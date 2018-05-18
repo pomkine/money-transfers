@@ -6,8 +6,8 @@ import static io.vavr.API.Match;
 import static io.vavr.Predicates.instanceOf;
 import static io.vavr.collection.List.ofAll;
 
-import com.google.common.collect.Lists;
-import com.pomkine.domain.common.AggregateId;
+import com.pomkine.domain.common.Aggregate;
+import com.pomkine.domain.common.Version;
 import com.pomkine.domain.transfer.command.CreateMoneyTransfer;
 import com.pomkine.domain.transfer.command.RecordNotFoundAccount;
 import com.pomkine.domain.transfer.event.AccountNotFound;
@@ -17,23 +17,20 @@ import com.pomkine.domain.transfer.event.FailedDebitRecorded;
 import com.pomkine.domain.transfer.event.MoneyTransferCreated;
 import com.pomkine.domain.transfer.event.MoneyTransferEvent;
 import java.util.List;
-import lombok.Getter;
 import lombok.ToString;
 
 
 @ToString
-public class MoneyTransfer {
+public class MoneyTransfer extends Aggregate<MoneyTransferEvent> {
 
-    @Getter
-    private AggregateId id;
     private TransferDetails details;
     private MoneyTransferState state;
-    private List<MoneyTransferEvent> pendingEvents = Lists.newArrayList();
 
-    public static MoneyTransfer from(List<MoneyTransferEvent> history) {
-        return ofAll(history)
+    public static MoneyTransfer from(List<MoneyTransferEvent> history, Version version) {
+        return (MoneyTransfer) ofAll(history)
             .foldLeft(new MoneyTransfer(), (transfer, event)
-                -> transfer.handle(event, false));
+                -> transfer.handle(event, false))
+            .setVersion(version);
     }
 
     public MoneyTransfer create(CreateMoneyTransfer create) {
@@ -97,15 +94,7 @@ public class MoneyTransfer {
         return this;
     }
 
-    public List<MoneyTransferEvent> getPendingEvents() {
-        return pendingEvents;
-    }
-
-    public void markEventsAsCommitted() {
-        pendingEvents.clear();
-    }
-
-    public MoneyTransfer handle(MoneyTransferEvent event, boolean isNew) {
+    private MoneyTransfer handle(MoneyTransferEvent event, boolean isNew) {
         if (isNew) {
             this.pendingEvents.add(event);
         }

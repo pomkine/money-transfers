@@ -6,7 +6,6 @@ import static io.vavr.API.Match;
 import static io.vavr.Predicates.instanceOf;
 import static io.vavr.collection.List.ofAll;
 
-import com.google.common.collect.Lists;
 import com.pomkine.domain.account.command.CreditAccount;
 import com.pomkine.domain.account.command.DebitAccount;
 import com.pomkine.domain.account.command.OpenAccount;
@@ -15,24 +14,23 @@ import com.pomkine.domain.account.event.AccountDebitFailedDueToInsufficientFunds
 import com.pomkine.domain.account.event.AccountDebited;
 import com.pomkine.domain.account.event.AccountEvent;
 import com.pomkine.domain.account.event.AccountOpened;
+import com.pomkine.domain.common.Aggregate;
 import com.pomkine.domain.common.AggregateId;
+import com.pomkine.domain.common.Version;
 import java.util.List;
-import lombok.Getter;
 import lombok.ToString;
 import org.joda.money.CurrencyUnit;
 import org.joda.money.Money;
 
 @ToString
-public class Account {
+public class Account extends Aggregate<AccountEvent> {
 
-    @Getter
-    private AggregateId id;
     private Money balance;
-    private List<AccountEvent> pendingEvents = Lists.newArrayList();
 
-    public static Account from(List<AccountEvent> history) {
-        return ofAll(history)
-            .foldLeft(new Account(), (account, event) -> account.handle(event, false));
+    public static Account from(List<AccountEvent> history, Version version) {
+        return (Account) ofAll(history)
+            .foldLeft(new Account(), (account, event) -> account.handle(event, false))
+            .setVersion(version);
     }
 
     public Account open(OpenAccount open) {
@@ -93,14 +91,6 @@ public class Account {
         balance = opened.getInitialBalance();
         id = opened.getAccountId();
         return this;
-    }
-
-    public List<AccountEvent> getPendingEvents() {
-        return pendingEvents;
-    }
-
-    public void markEventsAsCommitted() {
-        pendingEvents.clear();
     }
 
     private Account handle(AccountEvent event, boolean isNew) {
