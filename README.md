@@ -5,7 +5,7 @@ The main aim of this project is to get a hands-on experience with *Event Sourcin
 ## Build and Run
 
 1. Clone with `git clone https://github.com/pomkine/money-transfers`
-2. Build a runnable *jar* with `./gradlew shadowJar`
+2. Build a *jar* with `./gradlew shadowJar`
 3. Run the *jar* with `java -jar build/libs/money-transfers.jar server`
 
 ## API Reference
