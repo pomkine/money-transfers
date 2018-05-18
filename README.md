@@ -16,7 +16,7 @@ The main aim of this project is to get a hands-on experience with *Event Sourcin
                  }
    				```
 - *Get Account information* - **GET** `/account/{account_id}`
-- *Transfer money* - **POST** `transfer`
+- *Transfer money* - **POST** `/transfer`
    *Payload*: ```{
                  	"from_account":"32287c81-e925-466e-9753-1de9e2184a57",
                  	"to_account":"6a61adb1-d566-4f10-804f-95ed6e8fa152",
