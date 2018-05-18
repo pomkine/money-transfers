@@ -32,6 +32,30 @@ The main aim of this project is to get a hands-on experience with *Event Sourcin
                  	"to_account":"6a61adb1-d566-4f10-804f-95ed6e8fa152",
                  	"amount":6.55
                  }```
+                 
+## Domain model
+
+- [**Account**](../master/src/main/java/com/pomkine/domain/account/Account.java) aggregate
+    - **Commands**
+       - Open account
+       - Credit account
+       - Debit account
+    - **Events**
+       - Account opened
+       - Account credited
+       - Account debited
+       - Account debit failed due to insufficient funds
+
+- [**Money transfer**](../master/src/main/java/com/pomkine/domain/transfer/MoneyTransfer.java) aggregate
+   - **Commands**
+      - Create money transfer
+      - Record not found account
+   - **Events**
+      - Money transfer created
+      - Account not found
+      - Credit recorded
+      - Debit recorded
+      - Failed debit recorded
 
 ## Tests
 
