@@ -2,6 +2,7 @@ package com.pomkine
 
 import com.pomkine.application.MoneyTransferApplication
 import com.pomkine.application.MoneyTransferConfiguration
+import com.pomkine.domain.common.AggregateId
 import io.dropwizard.testing.DropwizardTestSupport
 import io.restassured.http.ContentType
 import io.restassured.response.Response
@@ -102,6 +103,76 @@ class MoneyTransferAcceptanceSpec extends Specification {
                 .body("balance.amount",
                 equalTo((account2Balance + toTransfer).getAmount().toFloat()))
     }
+
+    def "transfer money should not debit account if credit account not found"() {
+
+        setup:
+        def account1Balance = Money.parse("USD 200")
+        def account1 = createAccount(account1Balance)
+        def toTransfer = Money.parse("USD 5")
+
+        when:
+        def transferResp = transferMoney(account1, AggregateId.generate().toString(), toTransfer)
+
+        then:
+        transferResp.then().log().all()
+                .statusCode(200)
+                .body("transfer_id", notNullValue())
+
+        def account1InfoResp = getAccountInfo(account1)
+        account1InfoResp.then().log().all()
+                .body("balance.amount",
+                equalTo((account1Balance).getAmount().toFloat()))
+    }
+
+    def "transfer money should not credit account if debit account not found"() {
+
+        setup:
+        def account1Balance = Money.parse("USD 200")
+        def account1 = createAccount(account1Balance)
+        def toTransfer = Money.parse("USD 5")
+
+        when:
+        def transferResp = transferMoney(AggregateId.generate().toString(), account1, toTransfer)
+
+        then:
+        transferResp.then().log().all()
+                .statusCode(200)
+                .body("transfer_id", notNullValue())
+
+        def account1InfoResp = getAccountInfo(account1)
+        account1InfoResp.then().log().all()
+                .body("balance.amount",
+                equalTo((account1Balance).getAmount().toFloat()))
+    }
+
+    def "transfer money should not credit account if debit account has not enough money to transfer"() {
+        setup:
+        def account1Balance = Money.parse("USD 200")
+        def account2Balance = Money.parse("USD 500")
+        def account1 = createAccount(account1Balance)
+        def account2 = createAccount(account2Balance)
+        def toTransfer = Money.parse("USD 500")
+
+        when:
+        def transferResp = transferMoney(account1, account2, toTransfer)
+
+        then:
+        transferResp.then().log().all()
+                .statusCode(200)
+                .body("transfer_id", notNullValue())
+
+        def account1InfoResp = getAccountInfo(account1)
+        account1InfoResp.then().log().all()
+                .body("balance.amount",
+                equalTo((account1Balance).getAmount().toFloat()))
+
+        def account2InfoResp = getAccountInfo(account2)
+        account2InfoResp.then().log().all()
+                .body("balance.amount",
+                equalTo((account2Balance).getAmount().toFloat()))
+    }
+
 
     private Response transferMoney(String from, String to, Money amount) {
         return given().contentType(ContentType.JSON)

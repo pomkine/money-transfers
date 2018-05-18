@@ -15,7 +15,6 @@ public class EventStream<S> {
     private final AggregateId aggregateId;
     private final Class<S> aggregateType;
     private final List<DomainEvent> events;
-    private final int version = 0;
 
     public EventStream(AggregateId aggregateId, Class<S> aggregateType) {
         this.aggregateId = aggregateId;
