@@ -37,7 +37,7 @@ public class MoneyTransfer extends Aggregate<MoneyTransferEvent> {
         TransferDetails details = create.getDetails();
         if (details.getAmount().isNegativeOrZero()) {
             throw new IllegalArgumentException(
-                "Can't create money amount with negative or zero transfer amount");
+                "Can't create money transfer with negative or zero transfer amount");
         }
         if (sameAccount(details)) {
             throw new IllegalArgumentException(
