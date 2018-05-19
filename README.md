@@ -73,3 +73,4 @@ The main aim of this project is to get a hands-on experience with *Event Sourcin
 ## TO DO
 1. Gradle config to run unit and acceptance tests separately
 2. Transfers read model
+3. Commands retry on version conflict
