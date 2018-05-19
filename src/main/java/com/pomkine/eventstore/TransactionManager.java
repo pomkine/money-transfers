@@ -16,11 +16,11 @@ public class TransactionManager {
         this.idToLock = Maps.newConcurrentMap();
     }
 
-    public void doInTx(AggregateId aggregateId, Runnable writeAction) {
+    public void doInTx(AggregateId aggregateId, Runnable action) {
         Lock aggregateLock = getOrCreateLock(aggregateId);
         try {
             aggregateLock.lock();
-            writeAction.run();
+            action.run();
         } finally {
             aggregateLock.unlock();
         }
